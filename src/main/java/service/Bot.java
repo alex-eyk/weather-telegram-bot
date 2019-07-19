@@ -7,13 +7,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Bot extends TelegramLongPollingBot {
     private static final String BOT_NAME = "WeatherBot";
@@ -45,12 +41,7 @@ public class Bot extends TelegramLongPollingBot {
         SendMessage messageSender = new SendMessage()
                 .enableMarkdown(true)
                 .setChatId(chatId)
-                .setText(message)
-                .setReplyMarkup(new ReplyKeyboardMarkup().setKeyboard(new ArrayList<KeyboardRow>() {{
-                    KeyboardRow keyboardRow = new KeyboardRow();
-                    keyboardRow.add(new KeyboardButton("/help"));
-                    add(keyboardRow);
-                }}));
+                .setText(message);
 
         try {
             execute(messageSender);
