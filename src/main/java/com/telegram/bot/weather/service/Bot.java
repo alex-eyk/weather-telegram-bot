@@ -21,20 +21,24 @@ public class Bot extends TelegramLongPollingBot {
     private static final Logger logger = LogManager.getLogger(Bot.class);
 
     @Override
-    public void onUpdateReceived(Update update) {
+    public synchronized void onUpdateReceived(Update update) {
         Message message = update.getMessage();
         Long chatId = message.getChatId();
 
         if (message.getText() != null) {
             if (message.getText().equals("/start"))
                 sendMessage(chatId, Messages.GREETING);
+
             else if (message.getText().equals("/help"))
                 sendMessage(chatId, Messages.HELP);
+
             else if (message.getText().matches("\\d+"))
-                sendWeatherWithZipCode(chatId, message);
+                new Thread(() -> sendWeatherWithZipCode(chatId, message)).start();
+
             else sendMessage(chatId, Messages.UNKNOWN);
+
         } else if (message.getLocation() != null)
-            sendWeatherWithLocation(chatId, message);
+            new Thread(() -> sendWeatherWithLocation(chatId, message)).start();
     }
 
     private void sendWeatherWithLocation(Long chatId, Message message) {
