@@ -1,6 +1,6 @@
-package service;
+package com.telegram.bot.weather.service;
 
-import model.Weather;
+import com.telegram.bot.weather.model.Weather;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

@@ -1,7 +1,9 @@
+package com.telegram.bot.weather;
+
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
-import service.Bot;
+import com.telegram.bot.weather.service.Bot;
 
 public class Application {
 

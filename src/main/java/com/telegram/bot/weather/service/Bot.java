@@ -1,8 +1,10 @@
-package service;
+package com.telegram.bot.weather.service;
 
-import model.Weather;
-import model.WeatherRepository;
-import model.WeatherRepositoryImpl;
+import com.telegram.bot.weather.model.Weather;
+import com.telegram.bot.weather.model.WeatherRepository;
+import com.telegram.bot.weather.model.WeatherRepositoryImpl;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -16,6 +18,8 @@ public class Bot extends TelegramLongPollingBot {
     private static final String TELEGRAM_API = "API_KEY"; //Ключ можно получить у телеграм-бота @BotFather
     private WeatherRepository mWeatherRepository = new WeatherRepositoryImpl();
 
+    private static final Logger logger = LogManager.getLogger(Bot.class);
+
     @Override
     public void onUpdateReceived(Update update) {
         Message message = update.getMessage();
@@ -26,15 +30,31 @@ public class Bot extends TelegramLongPollingBot {
                 sendMessage(chatId, Messages.GREETING);
             else if (message.getText().equals("/help"))
                 sendMessage(chatId, Messages.HELP);
+            else if (message.getText().matches("\\d+"))
+                sendWeatherWithZipCode(chatId, message);
             else sendMessage(chatId, Messages.UNKNOWN);
-        } else if (message.getLocation() != null) {
-            try {
-                Weather currentWeather = mWeatherRepository.getCurrentWeather(message.getLocation());
-                sendMessage(chatId, MessagesBuilderHelper.createMessage(currentWeather));
-            } catch (IOException e) {
-                sendMessage(chatId, Messages.ERROR);
-            }
-        } else sendMessage(chatId, Messages.ERROR);
+        } else if (message.getLocation() != null)
+            sendWeatherWithLocation(chatId, message);
+    }
+
+    private void sendWeatherWithLocation(Long chatId, Message message) {
+        try {
+            Weather currentWeather = mWeatherRepository.getCurrentWeatherByLocation(message.getLocation());
+            sendMessage(chatId, MessagesBuilderHelper.createMessage(currentWeather));
+        } catch (IOException e) {
+            sendMessage(chatId, Messages.ERROR);
+            logger.error("Exception while getting current weather with location", e);
+        }
+    }
+
+    private void sendWeatherWithZipCode(Long chatId, Message message) {
+        try {
+            Weather currentWeather = mWeatherRepository.getCurrentWeatherByZipCode(message.getText());
+            sendMessage(chatId, MessagesBuilderHelper.createMessage(currentWeather));
+        } catch (IOException e) {
+            sendMessage(chatId, Messages.ERROR);
+            logger.error("Exception while getting current weather with zip code", e);
+        }
     }
 
     private synchronized void sendMessage(Long chatId, String message) {

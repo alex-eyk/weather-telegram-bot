@@ -1,5 +1,7 @@
-package model;
+package com.telegram.bot.weather.model;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.telegram.telegrambots.meta.api.objects.Location;
 
@@ -13,16 +15,30 @@ import java.net.URL;
 public class WeatherRepositoryImpl implements WeatherRepository {
     private static final String WEATHER_API = "API_KEY"; //https://openweathermap.org/api
 
+    private static final Logger logger = LogManager.getLogger(WeatherRepositoryImpl.class);
+
     @Override
-    public synchronized Weather getCurrentWeather(Location location) throws IOException {
+    public synchronized Weather getCurrentWeatherByLocation(Location location) throws IOException {
         Float longitude = location.getLongitude();
         Float latitude = location.getLatitude();
 
         URL url = new URL(String.format("http://api.openweathermap.org/data/2.5/weather?lat=%s&lon=%s&APPID=%s",
                 latitude.toString(), longitude.toString(), WEATHER_API));
+        logger.info("sending request with location");
 
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
+
+        return createWeatherFromResponse(getResponce(connection));
+    }
+
+    @Override
+    public Weather getCurrentWeatherByZipCode(String zipCode) throws IOException {
+        URL url = new URL(String.format("http://api.openweathermap.org/data/2.5/weather?zip=%s,ru&APPID=%s", zipCode, WEATHER_API));
+
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        logger.info("sending request with zip code");
 
         return createWeatherFromResponse(getResponce(connection));
     }

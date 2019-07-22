@@ -1,4 +1,4 @@
-package model;
+package com.telegram.bot.weather.model;
 
 public class Weather {
     private double temperature;
